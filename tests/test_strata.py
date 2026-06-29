@@ -160,6 +160,35 @@ class TestChunker(unittest.TestCase):
         self.assertGreater(len(shared), len(chunks_a) * 0.5)
 
 
+class TestStreamingAPI(TempArchive):
+    def test_wrap_file(self):
+        src = os.path.join(self.dir, "hello.txt")
+        with open(src, "wb") as f:
+            f.write(b"hello from a file" * 50)
+        s = Strata.wrap_file(src, self.path)
+        with open(src, "rb") as f:
+            self.assertEqual(s.read(-1), f.read())
+
+    def test_commit_file(self):
+        Strata.create(self.path, b"v1 content" * 50)
+        src = os.path.join(self.dir, "v2.txt")
+        with open(src, "wb") as f:
+            f.write(b"v2 content" * 50)
+        Strata(self.path).commit_file(src, message="v2")
+        self.assertEqual(len(Strata(self.path).versions()), 2)
+        with open(src, "rb") as f:
+            self.assertEqual(Strata(self.path).read(-1), f.read())
+
+    def test_checkout_to_file(self):
+        data = b"checkout content" * 30
+        Strata.create(self.path, data)
+        out = os.path.join(self.dir, "out.bin")
+        n = Strata(self.path).checkout_to_file(out)
+        self.assertEqual(n, len(data))
+        with open(out, "rb") as f:
+            self.assertEqual(f.read(), data)
+
+
 def _hashed(pieces):
     import hashlib
     return [hashlib.blake2b(p, digest_size=32).hexdigest() for p in pieces]

@@ -122,6 +122,23 @@ print(report.ok, report.blobs_checked)     # True 2
 - **Recoverable.** Append-only writes mean a torn write or a damaged footer can
   be rebuilt from the intact log (`strata repair`).
 
+## Security model
+
+Strata is an **integrity** format, not an **authenticity** format. Understand
+what that means before relying on it:
+
+| What Strata does | What Strata does not do |
+|------------------|------------------------|
+| Detects accidental corruption — bit-rot, truncation, bad transfers | Detect a deliberate replacement: an adversary with write access can rebuild a valid Strata file from scratch with different content and correct hashes |
+| Tells you *which* versions survived damage | Prove the content came from a specific author |
+| Lets you recover from a torn write | Encrypt the payload |
+
+If you need *authenticity* (tamper-detection against a motivated attacker or
+proof of authorship), sign the Strata file with a separate tool (e.g. `gpg`,
+`minisign`, or Sigstore). That is intentionally out of scope for the format;
+Strata focuses on the "reliable memory" problem, not the "trust" problem. See
+[`SPEC.md` §7](SPEC.md) for the full threat-model discussion.
+
 ## Status & roadmap
 
 v0.1 (this repo) is a complete, tested reference implementation of **Strata

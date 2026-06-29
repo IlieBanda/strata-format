@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: CLI smoke test
+        run: |
+          echo "Hello, Strata" > /tmp/hello.txt
+          strata wrap /tmp/hello.txt -o /tmp/hello.strata -m "initial"
+          echo "Hello, Strata v2" > /tmp/hello2.txt
+          strata commit /tmp/hello.strata /tmp/hello2.txt -m "update"
+          strata log /tmp/hello.strata
+          strata verify /tmp/hello.strata
+          strata info /tmp/hello.strata
+          strata checkout /tmp/hello.strata -n 0 -o /tmp/out.txt
+          diff /tmp/hello.txt /tmp/out.txt

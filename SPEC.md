@@ -195,6 +195,33 @@ To add a version, a writer:
 Existing blobs and commits are never modified — this is the copy-on-write
 property and the basis of recovery.
 
+## 7.2 Threat model
+
+Strata provides **integrity** (detecting accidental corruption) but not
+**authenticity** (proving who wrote the content or detecting a motivated
+adversary with write access).
+
+**Within scope:**
+
+- Bit-rot, partial disk failures, truncated transfers — detected by chunk
+  BLAKE2b-256 hashes and the footer BLAKE2b-128 digest.
+- Torn writes (process killed mid-commit) — caught by the footer digest;
+  recoverable via forward scan.
+- Silent data corruption in transit — any chunk that changes will fail its
+  hash check.
+
+**Out of scope:**
+
+- *Adversarial replacement:* an attacker who can write to the file can create
+  a fully valid Strata file with different content and correct hashes.
+  BLAKE2b is not a MAC; without a key the hash can be recomputed over any
+  payload.
+- *Authorship / provenance:* there is no signing or PKI in the format. Use
+  `gpg`, `minisign`, Sigstore, or similar to sign the Strata file as a whole
+  if authenticity matters.
+- *Confidentiality:* blobs are stored in plaintext (optionally zlib-compressed).
+  Encryption is reserved for a future format version.
+
 ## 8. Integrity, recovery, and future work
 
 - **Detection.** Recomputing `BLAKE2b-256` of each chunk and comparing to its

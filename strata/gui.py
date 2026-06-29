@@ -257,6 +257,8 @@ function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");
   clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200);}
 function when(ts){return new Date(ts*1000).toLocaleString();}
 
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
 async function refresh(){
   archives=await (await fetch("/api/list")).json();
   const list=$("#list");
@@ -264,8 +266,8 @@ async function refresh(){
   for(const a of archives){
     const d=document.createElement("div");
     d.className="card"+(current===a.archive?" active":"");
-    d.innerHTML=`<div class="n">${a.name}</div>
-      <div class="m">${a.versions.length} version(s) · ${a.size_h} · file ${a.file_size_h}</div>`;
+    d.innerHTML=`<div class="n">${esc(a.name)}</div>
+      <div class="m">${esc(a.versions.length)} version(s) · ${esc(a.size_h)} · file ${esc(a.file_size_h)}</div>`;
     d.onclick=()=>open(a.archive);
     list.appendChild(d);
   }
@@ -283,25 +285,26 @@ function render(a){
   const rows=vers.map(v=>`
     <div class="v ${v.i===a.versions.length-1?'latest':''}">
       <div class="row">
-        <span class="msg">${v.message}</span>
-        <span class="dl" onclick="dl('${a.archive}',${v.i})">download</span>
+        <span class="msg">${esc(v.message)}</span>
+        <span class="dl" onclick="dl('${esc(a.archive)}',${v.i})">download</span>
       </div>
-      <div class="when">v${v.i+1} · ${v.size_h} · ${when(v.time)} · ${v.id}</div>
+      <div class="when">v${v.i+1} · ${esc(v.size_h)} · ${when(v.time)} · ${esc(v.id)}</div>
     </div>`).join("");
   $("#panel").innerHTML=`
     <div class="head">
       <div>
-        <div class="title">${a.name}</div>
-        <div class="meta">${a.mime} · ${a.versions.length} version(s) · on disk ${a.file_size_h}</div>
+        <div class="title">${esc(a.name)}</div>
+        <div class="meta">${esc(a.mime)} · ${esc(a.versions.length)} version(s) · on disk ${esc(a.file_size_h)}</div>
       </div>
       <div class="btns">
-        <button class="primary" onclick="dl('${a.archive}',-1)">Download latest</button>
-        <button onclick="verify('${a.archive}')">Verify</button>
+        <button class="primary" onclick="dl('${esc(a.archive)}',-1)">Download latest</button>
+        <button onclick="verify('${esc(a.archive)}')">Verify</button>
       </div>
     </div>
     <div id="status" class="status"></div>
     <div class="timeline">${rows}</div>
     <div class="hint">Drop a newer version of this file anywhere on the window to add it to the history.</div>`;
+  // archive value used in verify/repair onclick is already esc()-d above
 }
 
 function dl(archive,n){window.location="/api/checkout?archive="+encodeURIComponent(archive)+"&n="+n;}

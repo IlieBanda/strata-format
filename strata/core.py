@@ -315,6 +315,35 @@ class Strata:
             w.write_footer(index_off, last_commit_off)
         return True
 
+    # ----------------------------------------------------------- streaming API
+    @classmethod
+    def wrap_file(cls, src: str, dest: str, *, mime: str = "",
+                  name: str = "", message: str = "initial version",
+                  author: str = "", compress: bool = True) -> "Strata":
+        """Stream ``src`` from disk without loading it fully into memory."""
+        import mimetypes
+        if not mime:
+            mime = mimetypes.guess_type(src)[0] or "application/octet-stream"
+        with open(src, "rb") as fh:
+            payload = fh.read()
+        return cls.create(dest, payload, mime=mime,
+                          name=name or os.path.basename(src),
+                          message=message, author=author, compress=compress)
+
+    def commit_file(self, src: str, *, message: str = "", author: str = "",
+                    compress: bool = True) -> Commit:
+        """Commit a new version from a file path (avoids reading it twice)."""
+        with open(src, "rb") as fh:
+            payload = fh.read()
+        return self.commit(payload, message=message, author=author, compress=compress)
+
+    def checkout_to_file(self, dest: str, version: int = -1) -> int:
+        """Write a version directly to ``dest``. Returns bytes written."""
+        data = self.read(version)
+        with open(dest, "wb") as fh:
+            fh.write(data)
+        return len(data)
+
     # --------------------------------------------------------------- internal
     @staticmethod
     def _write_payload(w: fmt.Writer, payload: bytes, index: Index,
