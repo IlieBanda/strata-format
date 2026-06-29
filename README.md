@@ -49,7 +49,32 @@ any payload, that carries its own past*. See [`SPEC.md`](SPEC.md) and the
 pip install -e .        # from this repo; pure stdlib, nothing to compile
 ```
 
-## Quick start (CLI)
+## The easy way: the drag-and-drop app
+
+No terminal needed after launch. Run once:
+
+```bash
+strata gui
+```
+
+A local app opens in your browser. **Drop a file** to turn it into a smart
+file. **Drop a newer version** onto it to add to its history. Click any version
+to download it. One button **verifies** the file and offers to **repair** it if
+it's damaged. Everything stays on your machine (`~/StrataFiles`).
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  Strata.   Files that remember, check, and explain themselves│
+├──────────────┬─────────────────────────────────────────────┤
+│ ⬇ Drop a file│  contract.pdf            [Download latest] [Verify] │
+│              │  application/pdf · 3 versions                │
+│ contract.pdf │  ● v3  added clause 7      2026-06-29   download │
+│ photo.jpg    │  ● v2  fixed numbers       2026-06-28   download │
+│ notes.txt    │  ● v1  first draft         2026-06-27   download │
+└──────────────┴─────────────────────────────────────────────┘
+```
+
+## Power user: the CLI
 
 ```bash
 # wrap any file into a versioned, self-verifying container
