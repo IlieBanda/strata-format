@@ -11,3 +11,5 @@ scratch/
 *.strata
 !examples/*.strata
 .DS_Store
+
+.claude/
