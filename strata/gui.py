@@ -269,6 +269,7 @@ async function refresh(){
     d.onclick=()=>open(a.archive);
     list.appendChild(d);
   }
+  if(!current && archives.length){ open(archives[0].archive); }
 }
 
 async function open(archive){
