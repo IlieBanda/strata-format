@@ -22,8 +22,8 @@ classifiers = [
 dependencies = []  # pure standard library by design
 
 [project.urls]
-Homepage = "https://github.com/REPLACE_ME/strata"
-Specification = "https://github.com/REPLACE_ME/strata/blob/main/SPEC.md"
+Homepage = "https://github.com/IlieBanda/strata-format"
+Specification = "https://github.com/IlieBanda/strata-format/blob/main/SPEC.md"
 
 [project.scripts]
 strata = "strata.cli:main"
